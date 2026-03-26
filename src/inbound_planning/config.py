@@ -35,14 +35,14 @@ class ProjectConfig(BaseModel):
 
         Args:
             config_path: Path to the YAML configuration file
-            env: Environment name (dev, acc, prd)
+            env: Environment name (dev, acc, prod)
 
         Returns:
             ProjectConfig instance
         """
-        if env not in ["prd", "acc", "dev"]:
+        if env not in ["dev", "acc", "prod"]:
             raise ValueError(
-                f"Invalid environment: {env}. Expected 'prd', 'acc', or 'dev'"
+                f"Invalid environment: {env}. Expected 'dev', 'acc', or 'prod'"
             )
 
         with open(config_path) as f:

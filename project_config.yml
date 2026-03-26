@@ -1,7 +1,7 @@
 # Project Configuration for Inbound Planning
 
 dev:
-  catalog: llmops_forecasting
+  catalog: llmops_forecasting_dev
   schema: inbound_planning
   volume: inbound_planning_files
   llm_endpoint: databricks-meta-llama-3-3-70b-instruct
@@ -12,7 +12,7 @@ dev:
   n_weeks: 10
 
 acc:
-  catalog: llmops_forecasting
+  catalog: llmops_forecasting_acc
   schema: inbound_planning
   volume: inbound_planning_files
   llm_endpoint: databricks-meta-llama-3-3-70b-instruct
@@ -22,8 +22,8 @@ acc:
   genie_space_id: null
   n_weeks: 10
 
-prd:
-  catalog: llmops_forecasting
+prod:
+  catalog: llmops_forecasting_prod
   schema: inbound_planning
   volume: inbound_planning_files
   llm_endpoint: databricks-meta-llama-3-3-70b-instruct
