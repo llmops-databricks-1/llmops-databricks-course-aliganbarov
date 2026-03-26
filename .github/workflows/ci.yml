@@ -54,4 +54,4 @@ jobs:
           DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_ACC_CLIENT_ID }}
           DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_ACC_CLIENT_SECRET }}
         run: |
-          databricks bundle run generate_synthetic_data -t acc
+          databricks bundle run synthetic_data_job -t acc
