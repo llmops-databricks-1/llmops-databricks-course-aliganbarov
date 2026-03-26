@@ -61,7 +61,7 @@ databricks bundle run generate_synthetic_data -t dev
 
 | Event              | Workflow           | Action                          |
 |--------------------|--------------------|---------------------------------|
-| PR to `main`       | `ci.yml`           | Lint → pytest → deploy to `acc` |
+| PR to `main`       | `ci.yml`           | Lint → pytest → deploy to `acc` → run pipeline |
 | Merge to `main`    | `deploy-prod.yml`  | Build wheel → deploy to `prod`  |
 | Manual trigger     | both               | `workflow_dispatch` supported   |
 
