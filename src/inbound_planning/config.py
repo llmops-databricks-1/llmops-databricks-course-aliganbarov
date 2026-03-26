@@ -22,7 +22,10 @@ class ProjectConfig(BaseModel):
         None, description="Genie space ID for MCP integration"
     )
     system_prompt: str = Field(
-        default="You are a helpful AI assistant that helps users interpret inbound planning data.",
+        default=(
+            "You are a helpful AI assistant that helps users"
+            " interpret inbound planning data."
+        ),
         description="System prompt for the agent",
     )
     n_weeks: int = Field(10, description="Number of historical weeks to generate")

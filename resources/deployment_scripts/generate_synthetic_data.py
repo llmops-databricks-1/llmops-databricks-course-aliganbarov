@@ -31,32 +31,32 @@ spark.sql(f"CREATE CATALOG IF NOT EXISTS {cfg.catalog}")
 spark.sql(f"CREATE SCHEMA IF NOT EXISTS {cfg.catalog}.{cfg.schema}")
 
 spark.sql(
-	f"""
-	CREATE TABLE IF NOT EXISTS {cfg.catalog}.{cfg.schema}.forecast_data (
-		week INT,
-		warehouse STRING,
-		forecast INT,
-		capacity INT,
-		prev_forecast INT,
-		change_pct DOUBLE,
-		utilization DOUBLE,
-		status STRING
-	)
-	USING DELTA
-	"""
+    f"""
+    CREATE TABLE IF NOT EXISTS {cfg.catalog}.{cfg.schema}.forecast_data (
+        week INT,
+        warehouse STRING,
+        forecast INT,
+        capacity INT,
+        prev_forecast INT,
+        change_pct DOUBLE,
+        utilization DOUBLE,
+        status STRING
+    )
+    USING DELTA
+    """
 )
 
 spark.sql(
-	f"""
-	CREATE TABLE IF NOT EXISTS {cfg.catalog}.{cfg.schema}.knowledge_base (
-		id STRING,
-		week INT,
-		warehouse STRING,
-		doc_type STRING,
-		text STRING
-	)
-	USING DELTA
-	"""
+    f"""
+    CREATE TABLE IF NOT EXISTS {cfg.catalog}.{cfg.schema}.knowledge_base (
+        id STRING,
+        week INT,
+        warehouse STRING,
+        doc_type STRING,
+        text STRING
+    )
+    USING DELTA
+    """
 )
 
 # COMMAND ----------
