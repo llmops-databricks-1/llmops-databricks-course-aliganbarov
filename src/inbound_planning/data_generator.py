@@ -25,12 +25,36 @@ from pyspark.sql import functions as F
 from inbound_planning.config import ProjectConfig
 
 _WAREHOUSES = [
-    "Berlin", "Hamburg", "Munich", "Cologne", "Frankfurt",
-    "Stuttgart", "Düsseldorf", "Leipzig", "Dortmund", "Essen",
-    "Bremen", "Dresden", "Hannover", "Nuremberg", "Duisburg",
-    "Bochum", "Wuppertal", "Bielefeld", "Bonn", "Münster",
-    "Karlsruhe", "Mannheim", "Augsburg", "Wiesbaden", "Gelsenkirchen",
-    "Mönchengladbach", "Braunschweig", "Chemnitz", "Kiel", "Aachen",
+    "Berlin",
+    "Hamburg",
+    "Munich",
+    "Cologne",
+    "Frankfurt",
+    "Stuttgart",
+    "Düsseldorf",
+    "Leipzig",
+    "Dortmund",
+    "Essen",
+    "Bremen",
+    "Dresden",
+    "Hannover",
+    "Nuremberg",
+    "Duisburg",
+    "Bochum",
+    "Wuppertal",
+    "Bielefeld",
+    "Bonn",
+    "Münster",
+    "Karlsruhe",
+    "Mannheim",
+    "Augsburg",
+    "Wiesbaden",
+    "Gelsenkirchen",
+    "Mönchengladbach",
+    "Braunschweig",
+    "Chemnitz",
+    "Kiel",
+    "Aachen",
 ]
 
 _LARGE = {"Berlin", "Hamburg", "Munich", "Frankfurt"}
@@ -75,7 +99,9 @@ class DataGenerator:
 
         current_iso_week = datetime.date.today().isocalendar().week
         self.end_week = current_iso_week
-        self.weeks = list(range(current_iso_week - self.n_weeks + 1, current_iso_week + 1))
+        self.weeks = list(
+            range(current_iso_week - self.n_weeks + 1, current_iso_week + 1)
+        )
 
         self.forecast_table = f"{self.catalog}.{self.schema}.forecast_data"
         self.kb_table = f"{self.catalog}.{self.schema}.knowledge_base"
@@ -144,9 +170,7 @@ class DataGenerator:
 
         return df
 
-    def _add_features(
-        self, df: pd.DataFrame, capacity_df: pd.DataFrame
-    ) -> pd.DataFrame:
+    def _add_features(self, df: pd.DataFrame, capacity_df: pd.DataFrame) -> pd.DataFrame:
         """Add utilization, week-over-week change, and status label."""
         df = df.merge(capacity_df, on="warehouse").sort_values(["warehouse", "week"])
         df["prev_forecast"] = df.groupby("warehouse")["forecast"].shift(1)
@@ -173,9 +197,13 @@ class DataGenerator:
         change_text = ""
         if pd.notna(row["change_pct"]):
             if row["change_pct"] > 0.2:
-                change_text = "There is a strong increase in inbound compared to last week."
+                change_text = (
+                    "There is a strong increase in inbound compared to last week."
+                )
             elif row["change_pct"] < -0.2:
-                change_text = "There is a significant decrease in inbound compared to last week."
+                change_text = (
+                    "There is a significant decrease in inbound compared to last week."
+                )
             else:
                 change_text = "Inbound volume is relatively stable compared to last week."
 
@@ -191,9 +219,9 @@ class DataGenerator:
     def _generate_network_doc(self, df_week: pd.DataFrame) -> str:
         week = int(df_week["week"].iloc[0])
         over = df_week[df_week["utilization"] > 1.0]["warehouse"].tolist()
-        high = df_week[
-            (df_week["utilization"] > 0.9) & (df_week["utilization"] <= 1.0)
-        ]["warehouse"].tolist()
+        high = df_week[(df_week["utilization"] > 0.9) & (df_week["utilization"] <= 1.0)][
+            "warehouse"
+        ].tolist()
         under = df_week[df_week["utilization"] < 0.7]["warehouse"].tolist()
 
         return (
@@ -255,37 +283,44 @@ class DataGenerator:
             StructType,
         )
 
-        schema = StructType([
-            StructField("week", IntegerType(), False),
-            StructField("warehouse", StringType(), False),
-            StructField("forecast", IntegerType(), False),
-            StructField("capacity", IntegerType(), False),
-            StructField("prev_forecast", IntegerType(), True),
-            StructField("change_pct", DoubleType(), True),
-            StructField("utilization", DoubleType(), False),
-            StructField("status", StringType(), False),
-        ])
+        schema = StructType(
+            [
+                StructField("week", IntegerType(), False),
+                StructField("warehouse", StringType(), False),
+                StructField("forecast", IntegerType(), False),
+                StructField("capacity", IntegerType(), False),
+                StructField("prev_forecast", IntegerType(), True),
+                StructField("change_pct", DoubleType(), True),
+                StructField("utilization", DoubleType(), False),
+                StructField("status", StringType(), False),
+            ]
+        )
 
-        spark_df = (
-            self.spark.createDataFrame(
-                df[["week", "warehouse", "forecast", "capacity",
-                    "prev_forecast", "change_pct", "utilization", "status"]],
-                schema=schema,
-            )
+        spark_df = self.spark.createDataFrame(
+            df[
+                [
+                    "week",
+                    "warehouse",
+                    "forecast",
+                    "capacity",
+                    "prev_forecast",
+                    "change_pct",
+                    "utilization",
+                    "status",
+                ]
+            ],
+            schema=schema,
         )
 
         (
-            spark_df.write
-            .format("delta")
+            spark_df.write.format("delta")
             .mode("overwrite")
             .option("overwriteSchema", "true")
             .saveAsTable(self.forecast_table)
         )
         logger.info(f"✓ Wrote {spark_df.count()} rows to {self.forecast_table}")
 
-    def _write_knowledge_base(
-        self, df: pd.DataFrame, network_docs: list[dict]
-    ) -> None:
+    def _write_knowledge_base(self, df: pd.DataFrame, network_docs: list[dict]) -> None:
         """Write knowledge base documents to Delta table (overwrite)."""
         warehouse_docs = [
             {
@@ -302,20 +337,16 @@ class DataGenerator:
         kb_pd = pd.DataFrame(all_docs)
         kb_pd["week"] = kb_pd["week"].astype("Int64")
 
-        spark_kb = (
-            self.spark.createDataFrame(kb_pd)
-            .select(
-                F.col("id").cast("string"),
-                F.col("week").cast("int").alias("week"),
-                F.col("warehouse").cast("string"),
-                F.col("doc_type").cast("string"),
-                F.col("text").cast("string"),
-            )
+        spark_kb = self.spark.createDataFrame(kb_pd).select(
+            F.col("id").cast("string"),
+            F.col("week").cast("int").alias("week"),
+            F.col("warehouse").cast("string"),
+            F.col("doc_type").cast("string"),
+            F.col("text").cast("string"),
         )
 
         (
-            spark_kb.write
-            .format("delta")
+            spark_kb.write.format("delta")
             .mode("overwrite")
             .option("overwriteSchema", "true")
             .saveAsTable(self.kb_table)
