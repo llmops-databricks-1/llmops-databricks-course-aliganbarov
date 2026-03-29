@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-03-29
+
+### Added
+
+- `src/inbound_planning/vector_search.py` — `VectorSearchManager` class
+  - Creates or waits for a Vector Search endpoint (`STANDARD` type)
+  - Creates a Delta Sync index on `knowledge_base` with `databricks-gte-large-en` embeddings
+  - `sync_index()` triggers a pipeline sync; called as the final step of `process_data_job`
+  - `search(query, num_results, filters)` runs similarity search returning `id`, `text`, `warehouse`, `week`, `doc_type`
+- `notebooks/test_vector_search.ipynb` — interactive notebook for testing the vector index and RAG pipeline against a live Databricks cluster
+  - Section 1: raw similarity search with optional `doc_type` / `warehouse` filters
+  - Section 2: `rag_query()` helper that retrieves context and calls `databricks-meta-llama-3-3-70b-instruct`
+
+### Changed
+
+- `resources/process_data_job.yml` replaces `resources/synthetic_data_job.yml` (job renamed to `process_data_job`)
+- `resources/deployment_scripts/process_data.py` replaces `generate_synthetic_data.py`; now runs a 3-step pipeline: UC bootstrap → `DataGenerator.run()` → `VectorSearchManager.sync_index()`
+- `knowledge_base` Delta table now created with `delta.enableChangeDataFeed = true` (required for Delta Sync index)
+- `pyproject.toml`: version field is now static (`version = "0.1.0"`); removed `dynamic = ["version"]` and `[tool.setuptools.dynamic]` to support `uv version --bump`
+
 ## [0.0.1] - 2026-03-26
 
 ### Added

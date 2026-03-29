@@ -1,7 +1,7 @@
 resources:
   jobs:
-    synthetic_data_job:
-      name: synthetic-data-generation
+    process_data_job:
+      name: process-data
       tags:
         project_name: "llmops-databricks-course-aliganbarov"
 
@@ -13,10 +13,10 @@ resources:
               - ../dist/*.whl
 
       tasks:
-        - task_key: synthetic_data_generation
+        - task_key: process_data
           environment_key: default
           notebook_task:
-            notebook_path: deployment_scripts/generate_synthetic_data.py
+            notebook_path: deployment_scripts/process_data.py
             base_parameters:
               env: ${bundle.target}
               git_sha: "${var.git_sha}"

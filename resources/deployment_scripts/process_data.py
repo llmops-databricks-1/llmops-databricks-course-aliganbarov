@@ -1,9 +1,14 @@
 # Databricks notebook source
 # MAGIC %md
-# MAGIC # Synthetic Data Generation Pipeline
+# MAGIC # Data Generation Pipeline
 # MAGIC
-# MAGIC This notebook generates static historical synthetic inbound planning data
-# MAGIC and stores both structured and document-oriented outputs in Unity Catalog.
+# MAGIC This notebook generates synthetic inbound planning data, stores it in Unity Catalog,
+# MAGIC and syncs the vector search index with the latest knowledge base documents.
+# MAGIC
+# MAGIC Pipeline steps:
+# MAGIC 1. Bootstrap Unity Catalog objects (idempotent)
+# MAGIC 2. Generate synthetic forecast and knowledge base data
+# MAGIC 3. Sync vector search index
 
 # COMMAND ----------
 
@@ -12,6 +17,7 @@ from pyspark.sql import SparkSession
 
 from inbound_planning.config import get_env, load_config
 from inbound_planning.data_generator import DataGenerator
+from inbound_planning.vector_search import VectorSearchManager
 
 # COMMAND ----------
 
@@ -25,6 +31,13 @@ logger.info(f"  Environment: {env}")
 logger.info(f"  Catalog: {cfg.catalog}")
 logger.info(f"  Schema: {cfg.schema}")
 logger.info(f"  Weeks generated: {cfg.n_weeks}")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Step 1: Bootstrap Unity Catalog Objects
+
+# COMMAND ----------
 
 # Ensure Unity Catalog objects exist for first-time runs.
 spark.sql(f"CREATE CATALOG IF NOT EXISTS {cfg.catalog}")
@@ -56,13 +69,21 @@ spark.sql(
         text STRING
     )
     USING DELTA
+    TBLPROPERTIES ('delta.enableChangeDataFeed' = 'true')
+    """
+)
+
+spark.sql(
+    f"""
+    ALTER TABLE {cfg.catalog}.{cfg.schema}.knowledge_base
+    SET TBLPROPERTIES ('delta.enableChangeDataFeed' = 'true')
     """
 )
 
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## Generate And Store Synthetic Historical Data
+# MAGIC ## Step 2: Generate And Store Synthetic Historical Data
 
 # COMMAND ----------
 
@@ -70,3 +91,16 @@ generator = DataGenerator(spark=spark, config=cfg)
 generator.run()
 
 logger.info("✓ Synthetic data generation complete!")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Step 3: Sync Vector Search Index
+
+
+# COMMAND ----------
+
+vs_manager = VectorSearchManager(config=cfg)
+vs_manager.sync_index()
+
+logger.info("✓ Data generation pipeline complete!")
