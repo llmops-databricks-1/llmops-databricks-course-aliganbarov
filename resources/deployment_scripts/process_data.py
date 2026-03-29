@@ -2,8 +2,9 @@
 # MAGIC %md
 # MAGIC # Data Generation Pipeline
 # MAGIC
-# MAGIC This notebook generates synthetic inbound planning data, stores it in Unity Catalog,
-# MAGIC and syncs the vector search index with the latest knowledge base documents.
+# MAGIC This notebook generates synthetic inbound planning data, stores it in
+# MAGIC Unity Catalog, and syncs the vector search index with the latest knowledge
+# MAGIC base documents.
 # MAGIC
 # MAGIC Pipeline steps:
 # MAGIC 1. Bootstrap Unity Catalog objects (idempotent)

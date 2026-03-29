@@ -1,7 +1,6 @@
 """Vector search management for the inbound planning knowledge base."""
 
 import datetime
-from typing import Any
 
 from databricks.sdk import WorkspaceClient
 from databricks.vector_search.client import VectorSearchClient
@@ -11,7 +10,7 @@ from inbound_planning.config import ProjectConfig
 
 
 class VectorSearchManager:
-    """Manages vector search endpoint and index for the inbound planning knowledge base."""
+    """Manages VS endpoint and index for the inbound planning knowledge base."""
 
     def __init__(
         self,
@@ -44,7 +43,7 @@ class VectorSearchManager:
         self.source_table = f"{self.catalog}.{self.schema}.knowledge_base"
 
     def create_endpoint_if_not_exists(self) -> None:
-        """Create the vector search endpoint if it does not already exist, and wait until ready."""
+        """Create the VS endpoint if it does not already exist, and wait until ready."""
         endpoints_response = self.client.list_endpoints()
         endpoints = (
             endpoints_response.get("endpoints", [])
@@ -66,14 +65,16 @@ class VectorSearchManager:
             )
             logger.info(f"✓ Vector search endpoint created: {self.endpoint_name}")
         else:
-            logger.info(f"Vector search endpoint exists: {self.endpoint_name}, waiting until ready...")
+            logger.info(
+                f"VS endpoint exists: {self.endpoint_name}, waiting until ready..."
+            )
             self.client.wait_for_endpoint(
                 name=self.endpoint_name,
                 timeout=datetime.timedelta(seconds=600),
             )
             logger.info(f"✓ Vector search endpoint ready: {self.endpoint_name}")
 
-    def create_or_get_index(self) -> Any:
+    def create_or_get_index(self) -> object:
         """Create the Delta Sync index if it does not exist, or return the existing one.
 
         Returns:
