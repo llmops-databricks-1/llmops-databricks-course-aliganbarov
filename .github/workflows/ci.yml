@@ -49,9 +49,9 @@ jobs:
         run: |
           databricks bundle deploy -t acc
 
-      - name: Run pipeline (acc)
-        env:
-          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_ACC_CLIENT_ID }}
-          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_ACC_CLIENT_SECRET }}
-        run: |
-          databricks bundle run synthetic_data_job -t acc
+      # - name: Run pipeline (acc)
+      #   env:
+      #     DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_ACC_CLIENT_ID }}
+      #     DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_ACC_CLIENT_SECRET }}
+      #   run: |
+      #     databricks bundle run process_data_job -t acc

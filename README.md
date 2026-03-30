@@ -8,16 +8,18 @@ A RAG-based forecasting assistant for e-commerce warehouse inbound planning, bui
 
 ```
 src/inbound_planning/       # Production package
-  config.py                 # ProjectConfig (Pydantic), load_config(), get_env()
-  data_generator.py         # DataGenerator: synthetic forecast + knowledge base
+  config.py                 # ProjectConfig (Pydantic), from_yaml()
+  data_generator.py         # DataGenerator: synthetic forecast + knowledge base docs
+  vector_search.py          # VectorSearchManager: endpoint, index, sync, similarity search
 
 resources/
-  synthetic_data_job.yml    # Databricks Asset Bundle job definition
+  process_data_job.yml      # Databricks Asset Bundle job definition
   deployment_scripts/
-    generate_synthetic_data.py  # Notebook run by the bundle job
+    process_data.py         # Notebook run by the bundle job (3-step pipeline)
 
 notebooks/
-  data_generation.ipynb     # Exploratory prototype (not linted)
+  data_generation.ipynb     # Exploratory prototype
+  test_vector_search.ipynb  # Interactive similarity search & RAG testing
 
 .github/workflows/
   ci.yml                    # PR → quality checks + deploy to acc
@@ -52,7 +54,7 @@ Deploy and run the data generation job against the `dev` catalog:
 
 ```bash
 databricks bundle deploy -t dev
-databricks bundle run generate_synthetic_data -t dev
+databricks bundle run process_data_job -t dev
 ```
 
 > Never deploy to `acc` or `prod` locally — those environments are managed exclusively by CI.

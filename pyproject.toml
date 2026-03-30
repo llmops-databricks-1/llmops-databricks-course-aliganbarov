@@ -1,6 +1,6 @@
 [project]
 name = "inbound-planning"
-dynamic = ["version"]
+version = "0.1.0"
 description = "llmops-databricks-course-aliganbarov - LLMOps Course on Databricks"
 requires-python = ">=3.12, <3.13"
 dependencies = [
@@ -49,9 +49,6 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["inbound_planning*"]
-
-[tool.setuptools.dynamic]
-version = { file = "version.txt" }
 
 [tool.pytest.ini_options]
 addopts = "-s --no-header --no-summary"
