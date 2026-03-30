@@ -1,0 +1,49 @@
+# Project Configuration for Inbound Planning
+
+dev:
+  catalog: llmops_forecasting_dev
+  schema: inbound_planning
+  volume: inbound_planning_files
+  llm_endpoint: databricks-meta-llama-3-3-70b-instruct
+  embedding_endpoint: databricks-gte-large-en
+  warehouse_id: 7077f4cb0e616c62
+  vector_search_endpoint: inbound_planning_vs_endpoint
+  genie_space_id: null
+  n_weeks: 10
+
+acc:
+  catalog: llmops_forecasting_acc
+  schema: inbound_planning
+  volume: inbound_planning_files
+  llm_endpoint: databricks-meta-llama-3-3-70b-instruct
+  embedding_endpoint: databricks-gte-large-en
+  warehouse_id: 7077f4cb0e616c62
+  vector_search_endpoint: inbound_planning_vs_endpoint
+  genie_space_id: null
+  n_weeks: 10
+
+prod:
+  catalog: llmops_forecasting_prod
+  schema: inbound_planning
+  volume: inbound_planning_files
+  llm_endpoint: databricks-meta-llama-3-3-70b-instruct
+  embedding_endpoint: databricks-gte-large-en
+  warehouse_id: 7077f4cb0e616c62
+  vector_search_endpoint: inbound_planning_vs_endpoint
+  genie_space_id: null
+  n_weeks: 10
+
+model_config:
+  temperature: 0.7
+  max_tokens: 2000
+  top_p: 0.95
+
+vector_search:
+  embedding_dimension: 1024
+  similarity_metric: cosine
+  num_results: 5
+
+chunking:
+  chunk_size: 512
+  chunk_overlap: 50
+  separator: "\n\n"

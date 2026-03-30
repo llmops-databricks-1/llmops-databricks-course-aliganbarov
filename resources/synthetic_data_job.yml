@@ -1,7 +1,7 @@
 resources:
   jobs:
-    hello_world_job:
-      name: hello-world
+    synthetic_data_job:
+      name: synthetic-data-generation
       tags:
         project_name: "llmops-databricks-course-aliganbarov"
 
@@ -13,10 +13,10 @@ resources:
               - ../dist/*.whl
 
       tasks:
-        - task_key: hello_world
+        - task_key: synthetic_data_generation
           environment_key: default
           notebook_task:
-            notebook_path: ../notebooks/hello_world.py
+            notebook_path: deployment_scripts/generate_synthetic_data.py
             base_parameters:
               env: ${bundle.target}
               git_sha: "${var.git_sha}"

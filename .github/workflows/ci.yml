@@ -4,40 +4,54 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
-  build_and_test:
+  quality_checks:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #v4.2.2
-        with:
-          # Fetch all history for all branches and tags
-          fetch-depth: 0
-          ref: ${{ github.head_ref }}
-
-      - name: Git tag from version.txt
-        run: |
-          VERSION=$(cat version.txt)
-          echo "VERSION=$VERSION"
-          # Only create tag if it doesn't exist
-          if ! git rev-parse "$VERSION" >/dev/null 2>&1; then
-            git tag "$VERSION"
-            echo "Created tag $VERSION"
-          else
-            echo "Tag $VERSION already exists, skipping"
-          fi
 
       - name: Install uv
-        uses: astral-sh/setup-uv@0c5e2b8115b80b4c7c5ddf6ffdd634974642d182 #v5.4.1
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 #v7.6.0
 
       - name: Install the dependencies
         run: |
-          uv sync --extra ci
+          uv sync --extra dev --extra ci
 
       - name: Run pre-commit checks
         run: |
           uv run pre-commit run --all-files
 
-      - name: run pytest
+      - name: Run pytest
         run: |
           uv run pytest
+
+      - name: Build wheel
+        run: |
+          uv build
+
+      - name: Install Databricks CLI
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+
+      - name: Validate Databricks bundle (acc)
+        env:
+          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_ACC_CLIENT_ID }}
+          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_ACC_CLIENT_SECRET }}
+        run: |
+          databricks bundle validate -t acc
+
+      - name: Deploy Databricks bundle (acc)
+        env:
+          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_ACC_CLIENT_ID }}
+          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_ACC_CLIENT_SECRET }}
+        run: |
+          databricks bundle deploy -t acc
+
+      - name: Run pipeline (acc)
+        env:
+          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_ACC_CLIENT_ID }}
+          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_ACC_CLIENT_SECRET }}
+        run: |
+          databricks bundle run synthetic_data_job -t acc
